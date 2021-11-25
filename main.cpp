@@ -28,7 +28,10 @@ void ganador(char [25], char [25], int, int );
 
 int validarMatrizControl(int**, int**, int);
 
+void registrarJuego(char[25],char[25], char[25], char[25], int , int );
+
 using namespace std;
+
 
 //elementos globales
 FILE* fichero;
@@ -154,10 +157,13 @@ void jugar(){
 	
 	//variables locales
 	bool jugadorRegistrado=false;
+	int registro=0;
 	char jugador1[25];
 	char cedula1[15];
 	char jugador2[25];
 	char cedula2[15];
+	
+	char text[10];
 	
 	char linea[80];
 	
@@ -192,6 +198,7 @@ void jugar(){
 	do{
 		fichero = fopen("jugadores.dat", "rt"); //se abre el fichero de jugadores registrados en modo lectura
 		jugadorRegistrado=false;
+		registro=0;
 		
 		cout<<"     Datos del jugador 1"<<endl<<endl;
 		cout<<"*Ingrese su nombre\n->";
@@ -202,10 +209,8 @@ void jugar(){
 		cin.clear();
 		cin>>cedula1;
 		
-		if(fichero==NULL){ //si no existe el fichero, no existen jugadores registrados, y se invoca la funcion registrar
+		if(fichero==NULL){ //si no existe el fichero, no existen jugadores registrados
 			fclose(fichero); //se cierra el fichero
-			registrarJugador();
-			system("cls");
 			jugadorRegistrado=false;
 		}else{
 			while (!feof(fichero)) {  //ciclo que recorre el fichero mientras no llegue al final
@@ -215,6 +220,14 @@ void jugar(){
 				if (!feof(fichero)){
 					
 					if(buscar_palabra(linea, cedula1)!=0){ //se busca en la linea leida si existe coincidencia en la cedula con la funcion buscar_palabra
+					    registro++;
+					    
+						if(buscar_palabra(linea, jugador1)!=0){ //se busca en la linea leida si existe coincidencia en el nombre con la funcion buscar_palabra
+					    	registro++;
+						}
+					}
+	
+					if(registro==2){
 						jugadorRegistrado=true;
 					}
 				}
@@ -228,7 +241,7 @@ void jugar(){
 			system("pause");
 			system("cls");
 		}else{
-			cout<<"Jugador no registrado, redirigiendo para registrar.."<<endl;
+			cout<<"*Datos del jugador incorrectos, redirigiendo para registrar.."<<endl;
 			system("pause");
 			system("cls");
 			
@@ -244,6 +257,7 @@ void jugar(){
 	do{
 		fichero = fopen("jugadores.dat", "rt"); //se abre el fichero de jugadores registrados en modo lectura
 		jugadorRegistrado=false;
+		registro=0;
 		
 		cout<<"     Datos del jugador 2"<<endl<<endl;
 		cout<<"*Ingrese su nombre\n->";
@@ -254,10 +268,8 @@ void jugar(){
 		cin.clear();
 		cin>>cedula2;
 		
-		if(fichero==NULL){ //si no existe el fichero, no existen jugadores registrados, y se invoca la funcion registrar
+		if(fichero==NULL){ //si no existe el fichero, no existen jugadores registrados
 			fclose(fichero); //se cierra el fichero
-			registrarJugador();
-			system("cls");
 			jugadorRegistrado=false;
 		}else{
 			while (!feof(fichero)) {  //ciclo que recorre el fichero mientras no llegue al final
@@ -267,6 +279,14 @@ void jugar(){
 				if (!feof(fichero)){
 					
 					if(buscar_palabra(linea, cedula2)!=0){ //se busca en la linea leida si existe coincidencia en la cedula con la funcion buscar_palabra
+					    registro++;
+					    
+					    if(buscar_palabra(linea, jugador2)!=0){ //se busca en la linea leida si existe coincidencia en el nombre con la funcion buscar_palabra
+					    	registro++;					
+						}
+					}
+							
+					if(registro==2){
 						jugadorRegistrado=true;
 					}
 				}
@@ -280,7 +300,7 @@ void jugar(){
 			system("pause");
 			system("cls");
 		}else{
-			cout<<"Jugador no registrado, redirigiendo para registrar.."<<endl;
+			cout<<"*Datos del jugador incorrectos, redirigiendo para registrar.."<<endl;
 			system("pause");
 			system("cls");
 			
@@ -305,11 +325,13 @@ void jugar(){
 			imprimirTablero(matriz); //se muestra en pantalla
 			resMultiplicacion=lanzarDados();
 
-			cout<<"*Digite el resultado de la multiplicacion de los valores de los dados\n->";
-			cin>>multiplicacion;
+			do{
+				cout<<"*Digite el resultado de la multiplicacion de los valores de los dados\n->";
+				cin>>multiplicacion;
+			}while(multiplicacion<1); //se valida que el numero sea positivo (y como se lee en una variable de tipo entero, se obvia la parte decimal asegurando tomar un numero entero positivo)
 			
-			if(multiplicacion==resMultiplicacion){
-				puntosJugador1+=validarMatrizControl(matriz, matrizControl, multiplicacion);
+			if(multiplicacion==resMultiplicacion){ //si la resuesta del jugador es igual a la multiplicacion
+				puntosJugador1+=validarMatrizControl(matriz, matrizControl, multiplicacion); //se invoca a la funcion validar Matriz de control para saber si se aumenta un acierto en la posicion, y si son 4 entonces se asume un punto
 				
 				system("pause");
 			}else{
@@ -328,11 +350,13 @@ void jugar(){
 			imprimirTablero(matriz); //se muestra en pantalla
 			resMultiplicacion=lanzarDados();
 
-			cout<<"*Digite el resultado de la multiplicacion de los valores de los dados\n->";
-			cin>>multiplicacion;
+			do{
+				cout<<"*Digite el resultado de la multiplicacion de los valores de los dados\n->";
+				cin>>multiplicacion;
+			}while(multiplicacion<1); //se valida que el numero sea positivo (y como se lee en una variable de tipo entero, se obvia la parte decimal asegurando tomar un numero entero positivo)
 			
-			if(multiplicacion==resMultiplicacion){
-				puntosJugador2+=validarMatrizControl(matriz, matrizControl, multiplicacion);
+			if(multiplicacion==resMultiplicacion){ //si la resuesta del jugador es igual a la multiplicacion
+				puntosJugador2+=validarMatrizControl(matriz, matrizControl, multiplicacion); //se invoca a la funcion validar Matriz de control para saber si se aumenta un acierto en la posicion, y si son 4 entonces se asume un punto
 				
 				system("pause");
 			}else{
@@ -346,6 +370,8 @@ void jugar(){
 		nTurnos++;	//al pasar el turno de ambos se asume un turno total
 	}
 	
+	registrarJuego(jugador1, jugador2, cedula1, cedula2, puntosJugador1, puntosJugador2); //invocacion de la funcion que registrara el ppartido en el archivo de juegos.dat
+	
 	//al terminar el juego
 	ganador(jugador1, jugador2, puntosJugador1, puntosJugador2); //invocacion de la funcion que mostrara un mensaje para declarar al ganador
 	
@@ -354,6 +380,25 @@ void jugar(){
 //ver 10 mejores
 void verDiezMejores(){
 	
+	fichero = fopen("juegos.dat", "rt"); //se abre el fichero de jugadores registrados en modo lectura
+	
+	//var local
+	char linea[80];
+	
+	if(fichero==NULL){	//si no existe el archivo, entonces no hay jugadores registrados
+    	cout<<"No hay juegos registrados aun!!"<<endl;
+    	
+	}else{
+		while (!feof(fichero)) {  //ciclo que recorre el archivo hasta llegar al final
+	        fgets(linea, 80, fichero); //se toma la linea 
+	        if (!feof(fichero)) 
+	           	puts(linea); //se imprime en consola dicha linea que corresponde al registro de un jugador
+   		} 
+    
+		fclose(fichero); //se cierra el fichero
+	}
+	system("pause");
+    system("cls");
 }
 
 //reporte general de jugadores
@@ -550,7 +595,7 @@ int lanzarDados(){
 
 //funcion que elige que dado dibujar 
 void dibujarDado(int nDado){
-	
+	//estudio de casos para mostrar un dado en especifico, dependiendo del valor de la cara dada aleatoriamente
 	switch(nDado){
 		case 1:{
 			for(int i=0;i<FILAS;i++){
@@ -618,6 +663,7 @@ void dibujarDado(int nDado){
 void ganador(char jugador1[25], char jugador2[25], int puntosJugador1, int puntosJugador2){
 	system("cls");
 	
+	//validaciones de acuerdo a los puntos finales para determinar un ganador o empate de ser el caso
 	if(puntosJugador1>puntosJugador2){
 		cout<<"FELICIDADES "<<jugador1<<" Has ganado con: "<<puntosJugador1<<" puntos sobre los "<<puntosJugador2<<" puntos de tu oponente"<<endl<<endl;
 		system("pause");
@@ -661,5 +707,77 @@ int validarMatrizControl(int **matriz, int **matrizControl, int multiplicacion){
 	return 0; //y se retorna cero al no sumarse punto
 }
 
+//funcion que registra el juego al terminar un partido
+void registrarJuego(char juegador1[25], char jugador2[25], char cedula1[25], char cedula2[25], int puntosJugador1, int puntosJugador2){
+
+	fichero = fopen("juegos.dat", "rt"); //se abre  el fichero juegos en modo lectura
+	
+	int nFilas=0;
+	char text[10];
+	char linea[80];
+	
+	if(fichero==NULL){ //si no existe el fichero entonces se crea
+		fichero = fopen("juegos.dat", "at"); //se crea  el archivo en modo modificacion 
+		cin.clear();
+		//se pasan la linea de presentacion de cada columna a la primera fila del fichero 
+		fputs("Num Juego",fichero);
+		fputs("\t",fichero);
+		
+		fputs("Jugador1",fichero);
+		fputs("\t",fichero);
+		
+		fputs("Puntos",fichero);
+		fputs("\t",fichero);
+		
+		fputs("Jugador2",fichero);
+		fputs("\t",fichero);
+		
+		fputs("Puntos",fichero);
+		fputs("\t",fichero);
+		
+		fputs("\n",fichero);
+		fclose(fichero); //se cierra el fichero
+		
+		nFilas++;
+	}else{
+		while (!feof(fichero)) {  //ciclo que recorre el fichero mientras no llegue al final
+			fgets(linea, 80, fichero); //se toma la linea 		
+			if (!feof(fichero)){
+				
+				nFilas++; //por cada linea se asume una fila lo que significa un juego diferente
+				
+			}
+			
+		}
+		fclose(fichero); //se cierra el fichero
+	}
+
+	fichero = fopen("juegos.dat", "at"); //se abre  el fichero juegos en modo escritura al final (para registrar un nuevo juego en una nueva fila)
+	
+	cin.clear(); //se limpia el buffer
+	
+	sprintf(text, "%d", nFilas);  //se pasa a cadena el valor almacenado en nFilas y se guarda en la cadena llamada text para poder pasarla al fichero
+	//se pasan los datos de la partida al fichero
+	fputs(text,fichero);
+	fputs("\t\t",fichero);
+	
+	fputs(cedula1,fichero);
+	fputs("\t",fichero);
+	
+	sprintf(text, "%d", puntosJugador1);
+	fputs(text,fichero);
+	fputs("\t",fichero);
+	
+	fputs(cedula2,fichero);
+	fputs("\t",fichero);
+	
+	sprintf(text, "%d", puntosJugador2);
+	fputs(text,fichero);
+	fputs("\t",fichero);
+	
+	fputs("\n",fichero);
+	fclose(fichero); //se cierra el fichero
+	
+}
 
 
