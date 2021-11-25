@@ -26,6 +26,8 @@ int lanzarDados();
 void dibujarDado(int);
 void ganador(char [25], char [25], int, int );
 
+int validarMatrizControl(int**, int**, int);
+
 using namespace std;
 
 //elementos globales
@@ -174,6 +176,18 @@ void jugar(){
 	for (int i = 0; i < tam; ++i) 
 		matriz[i] = new int[tam];
 	
+	//inicializa la matriz de control
+	int** matrizControl = new int*[tam];
+	for (int i = 0; i < tam; ++i) 
+		matrizControl[i] = new int[tam];
+		
+	//se llena la matriz 2 con ceros
+	for(int i=0;i<tam;i++){
+		for(int j=0;j<tam;j++){
+			matrizControl[i][j]=0;
+		}
+	}
+	
 	//ciclo para validar jugador 1 registrado para jugar	
 	do{
 		fichero = fopen("jugadores.dat", "rt"); //se abre el fichero de jugadores registrados en modo lectura
@@ -281,7 +295,7 @@ void jugar(){
 	inicializarTablero(matriz); //invocacion de la funcion que inicia el tablero
 	
 	//loop del juego que se repite siempre que los jugadores quieran jugar y tengan turnos disponibles (20 x cada uno es el limite)
-	while(jugar && nTurnos<=4){
+	while(jugar && nTurnos<=20){
 		
 		//para el jugador 1
 		jugar=seguirJugando(); //se pregunta si se desea seguir jugando al jugador 1
@@ -290,12 +304,13 @@ void jugar(){
 			puntaje(puntosJugador1, puntosJugador2, jugador1, jugador2, 1, nTurnos);
 			imprimirTablero(matriz); //se muestra en pantalla
 			resMultiplicacion=lanzarDados();
-			
+
 			cout<<"*Digite el resultado de la multiplicacion de los valores de los dados\n->";
 			cin>>multiplicacion;
 			
 			if(multiplicacion==resMultiplicacion){
-				cout<<"Correcto"<<endl;
+				puntosJugador1+=validarMatrizControl(matriz, matrizControl, multiplicacion);
+				
 				system("pause");
 			}else{
 				cout<<"Lo sentimos! La respuesta correcta es: "<<resMultiplicacion<<endl;
@@ -312,12 +327,13 @@ void jugar(){
 			puntaje(puntosJugador1, puntosJugador2, jugador1, jugador2, 2, nTurnos);
 			imprimirTablero(matriz); //se muestra en pantalla
 			resMultiplicacion=lanzarDados();
-			
+
 			cout<<"*Digite el resultado de la multiplicacion de los valores de los dados\n->";
 			cin>>multiplicacion;
 			
 			if(multiplicacion==resMultiplicacion){
-				cout<<"Correcto"<<endl;
+				puntosJugador2+=validarMatrizControl(matriz, matrizControl, multiplicacion);
+				
 				system("pause");
 			}else{
 				cout<<"Lo sentimos! La respuesta correcta es: "<<resMultiplicacion<<endl;
@@ -376,6 +392,7 @@ void registrarJugador(){
 	char linea[25];
 	int coincidencias=0;
 	
+	system("cls");
 	cout<<"        Registro de Jugador"<<endl<<endl;
 	//solicitar datos
 	cout<<"Ingrese el nombre del jugador\n->";
@@ -417,6 +434,7 @@ void registrarJugador(){
 	}else{
 		cout<<endl<<"El jugador de cedula: "<<cedula<<" ya esta registrado..."<<endl;
 		system("pause");
+		system("cls");
 	}
 		
 }
@@ -615,3 +633,33 @@ void ganador(char jugador1[25], char jugador2[25], int puntosJugador1, int punto
 	}
 	
 }
+
+//funcion que valida la matriz
+int validarMatrizControl(int **matriz, int **matrizControl, int multiplicacion){
+	
+	for(int i=0;i<tam;i++){ //doble ciclo que recorre una matriz
+		for(int j=0;j<tam;j++){
+			if(multiplicacion==matriz[i][j]){ //se valida que si el valor de la posicion de la matriz (tablero) es igual a la respuesta de la multiplicacion
+				
+				matrizControl[i][j]+=1; //se incrementa en 1 el valor de esa misma posicion en la matriz de control (pues representa el valor acertado)
+				
+				if(matrizControl[i][j]==4){ //si en la matriz de control se llego a 4 entonces se asume un punto al jugador y se retorna 1 (el punto que se va a sumar)
+					cout<<"*Felicidades, ha conseguido un punto al ser este valor objeto de 4 aciertos"<<endl;
+					matrizControl[i][j]=0; //se vuelve a cero en la matriz de control (pues 4 era el limite en ese valor)
+					return 1;
+				}else{
+					cout<<"*Respuesta correcta, continuando..."<<endl; //de no ser 4 en la matriz de control, se da un mjs de respuesta correcta, y se retorna cero (ya que no se sumara punto aun)
+					return 0;
+				}
+		
+			}
+		}
+	}
+	
+	cout<<"*Resuesta correcta, pero el valor no se encuentra en el tablero"<<endl; //en caso de no existir en el resultado de la multiplicacion en el tablero se da un aviso
+	
+	return 0; //y se retorna cero al no sumarse punto
+}
+
+
+
